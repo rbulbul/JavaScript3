@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      img {
+        width: 200px;
+        margin-top: 25px;
+      }
+
+      select {
+        border: 2px solid black;
+        border-radius: 5px;
+        font-size: 1.4rem;
+        cursor: pointer;
+      }
+
+      button {
+        font-size: 1.6rem;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+    </style>
+    <title>Get Pokemon</title>
+  </head>
+
+  <body>
+    <script>
+      function createDomElement() {
+        const div = document.createElement('div');
+        document.body.appendChild(div);
+
+        const button = document.createElement('button');
+        button.setAttribute('id', 'getPoke');
+        button.innerText = 'Get Pokemon';
+        div.appendChild(button);
+
+        const select = document.createElement('select');
+        select.setAttribute('id', 'choosePokemon');
+        const option = document.createElement('option');
+        option.innerText = 'Choose Pokemon';
+        select.appendChild(option);
+        div.appendChild(select);
+
+        const imgContainer = document.createElement('div');
+        imgContainer.setAttribute('id', 'imgContainer');
+        div.appendChild(imgContainer);
+      }
+
+      createDomElement();
+
+      const choosePokemon = document.getElementById('choosePokemon');
+      const getPokemon = document.getElementById('getPoke');
+
+      function fetchData() {
+        fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
+          .then((res) => res.json())
+          .then((data) => {
+            data.results.forEach((pokiName, counter) => {
+              const option = document.createElement('option');
+              option.innerText = pokiName.name;
+              option.setAttribute('value', counter);
+              choosePokemon.appendChild(option);
+            });
+          });
+      }
+
+      function addPokemonToDOM(pokemon) {
+        fetch('https://pokeapi.co/api/v2/pokemon?limit=151')
+          .then((response) => response.json())
+          .then((pokeData) => {
+            return fetch(pokeData.results[pokemon.target.value].url);
+          })
+          .then((response) => {
+            return response.json();
+          })
+          .then((data) => {
+            let img = document.createElement('img');
+            img.src = `${data.sprites.other.dream_world.front_default}`;
+            imgContainer.appendChild(img);
+          });
+      }
+
+      function main(pokemon) {
+        if (imgContainer.lastChild === null) {
+          addPokemonToDOM(pokemon);
+        } else {
+          imgContainer.removeChild(imgContainer.lastChild);
+          addPokemonToDOM(pokemon);
+        }
+      }
+
+      getPokemon.addEventListener('click', fetchData);
+      choosePokemon.addEventListener('change', main);
+    </script>
+  </body>
+</html>
